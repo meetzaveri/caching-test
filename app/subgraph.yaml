@@ -14,6 +14,13 @@ definition:
       fromEnv: APP_PG_READ_URL
     APP_PG_WRITE_URL:
       fromEnv: APP_PG_WRITE_URL
+    HASURA_CACHING_PRE_PARSE_URL:
+      fromEnv: HASURA_CACHING_PRE_PARSE_URL
+    HASURA_CACHING_PRE_RESPONSE_URL:
+      fromEnv: HASURA_CACHING_PRE_RESPONSE_URL
+    HASURA_M_AUTH:
+      fromEnv: HASURA_M_AUTH
+
   connectors:
     - path: connector/pg/connector.yaml
       connectorLinkName: pg

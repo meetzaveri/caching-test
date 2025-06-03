@@ -1,0 +1,35 @@
+
+---
+kind: LifecyclePluginHook
+version: v1
+definition:
+  pre: parse
+  name: cache_get_test
+  url:
+    valueFromEnv: HASURA_CACHING_PRE_PARSE_URL
+  config:
+    request:
+      headers:
+        additional:
+          hasura-m-auth:
+            valueFromEnv: HASURA_M_AUTH
+      rawRequest:
+        query: {}
+        variables: {}
+---
+kind: LifecyclePluginHook
+version: v1
+definition:
+  pre: response
+  name: cache_set_test
+  url:
+    valueFromEnv: HASURA_CACHING_PRE_RESPONSE_URL
+  config:
+    request:
+      headers:
+        additional:
+          hasura-m-auth:
+            valueFromEnv: HASURA_M_AUTH
+      rawRequest:
+        query: {}
+        variables: {}

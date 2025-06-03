@@ -1,0 +1,148 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: Categories
+  fields:
+    - name: id
+      type: Uuid!
+    - name: name
+      type: String_1!
+  graphql:
+    typeName: Categories
+    inputTypeName: CategoriesInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: pg
+      dataConnectorObjectType: categories
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: Categories
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - id
+          - name
+
+---
+kind: BooleanExpressionType
+version: v1
+definition:
+  name: CategoriesBoolExp
+  operand:
+    object:
+      type: Categories
+      comparableFields:
+        - fieldName: id
+          booleanExpressionType: UuidBoolExp
+        - fieldName: name
+          booleanExpressionType: TextBoolExp
+      comparableRelationships:
+        - relationshipName: products
+  logicalOperators:
+    enable: true
+  isNull:
+    enable: true
+  graphql:
+    typeName: CategoriesBoolExp
+
+---
+kind: AggregateExpression
+version: v1
+definition:
+  name: CategoriesAggExp
+  operand:
+    object:
+      aggregatedType: Categories
+      aggregatableFields:
+        - fieldName: id
+          aggregateExpression: UuidAggExp
+        - fieldName: name
+          aggregateExpression: TextAggExp
+  count:
+    enable: true
+  graphql:
+    selectTypeName: CategoriesAggExp
+
+---
+kind: OrderByExpression
+version: v1
+definition:
+  name: CategoriesOrderByExp
+  operand:
+    object:
+      orderedType: Categories
+      orderableFields:
+        - fieldName: id
+          orderByExpression: UuidOrderByExp
+        - fieldName: name
+          orderByExpression: String1OrderByExp
+      orderableRelationships: []
+  graphql:
+    expressionTypeName: CategoriesOrderByExp
+
+---
+kind: Model
+version: v2
+definition:
+  name: Categories
+  objectType: Categories
+  source:
+    dataConnectorName: pg
+    collection: categories
+  filterExpressionType: CategoriesBoolExp
+  aggregateExpression: CategoriesAggExp
+  orderByExpression: CategoriesOrderByExp
+  graphql:
+    selectMany:
+      queryRootField: categories
+      subscription:
+        rootField: categories
+    selectUniques:
+      - queryRootField: categoriesById
+        uniqueIdentifier:
+          - id
+        subscription:
+          rootField: categoriesById
+    filterInputTypeName: CategoriesFilterInput
+    aggregate:
+      queryRootField: categoriesAggregate
+      subscription:
+        rootField: categoriesAggregate
+
+---
+kind: ModelPermissions
+version: v1
+definition:
+  modelName: Categories
+  permissions:
+    - role: admin
+      select:
+        filter: null
+        allowSubscriptions: true
+
+---
+kind: Relationship
+version: v1
+definition:
+  name: products
+  sourceType: Categories
+  target:
+    model:
+      name: Products
+      relationshipType: Array
+      aggregate:
+        aggregateExpression: ProductsAggExp
+  mapping:
+    - source:
+        fieldPath:
+          - fieldName: id
+      target:
+        modelField:
+          - fieldName: categoryId
+  graphql:
+    aggregateFieldName: productsAggregate
+

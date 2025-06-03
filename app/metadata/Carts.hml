@@ -1,0 +1,223 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: Carts
+  fields:
+    - name: createdAt
+      type: Timestamptz
+    - name: id
+      type: Uuid!
+    - name: isComplete
+      type: Boolean_1!
+    - name: isReminderSent
+      type: Boolean_1!
+    - name: updatedAt
+      type: Timestamptz
+    - name: userId
+      type: Uuid!
+  graphql:
+    typeName: Carts
+    inputTypeName: CartsInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: pg
+      dataConnectorObjectType: carts
+      fieldMapping:
+        createdAt:
+          column:
+            name: created_at
+        id:
+          column:
+            name: id
+        isComplete:
+          column:
+            name: is_complete
+        isReminderSent:
+          column:
+            name: is_reminder_sent
+        updatedAt:
+          column:
+            name: updated_at
+        userId:
+          column:
+            name: user_id
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: Carts
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - createdAt
+          - id
+          - isComplete
+          - isReminderSent
+          - updatedAt
+          - userId
+
+---
+kind: BooleanExpressionType
+version: v1
+definition:
+  name: CartsBoolExp
+  operand:
+    object:
+      type: Carts
+      comparableFields:
+        - fieldName: createdAt
+          booleanExpressionType: TimestamptzBoolExp
+        - fieldName: id
+          booleanExpressionType: UuidBoolExp
+        - fieldName: isComplete
+          booleanExpressionType: BoolBoolExp
+        - fieldName: isReminderSent
+          booleanExpressionType: BoolBoolExp
+        - fieldName: updatedAt
+          booleanExpressionType: TimestamptzBoolExp
+        - fieldName: userId
+          booleanExpressionType: UuidBoolExp
+      comparableRelationships:
+        - relationshipName: cartItems
+        - relationshipName: user
+  logicalOperators:
+    enable: true
+  isNull:
+    enable: true
+  graphql:
+    typeName: CartsBoolExp
+
+---
+kind: AggregateExpression
+version: v1
+definition:
+  name: CartsAggExp
+  operand:
+    object:
+      aggregatedType: Carts
+      aggregatableFields:
+        - fieldName: createdAt
+          aggregateExpression: TimestamptzAggExp
+        - fieldName: id
+          aggregateExpression: UuidAggExp
+        - fieldName: isComplete
+          aggregateExpression: BoolAggExp
+        - fieldName: isReminderSent
+          aggregateExpression: BoolAggExp
+        - fieldName: updatedAt
+          aggregateExpression: TimestamptzAggExp
+        - fieldName: userId
+          aggregateExpression: UuidAggExp
+  count:
+    enable: true
+  graphql:
+    selectTypeName: CartsAggExp
+
+---
+kind: OrderByExpression
+version: v1
+definition:
+  name: CartsOrderByExp
+  operand:
+    object:
+      orderedType: Carts
+      orderableFields:
+        - fieldName: createdAt
+          orderByExpression: TimestamptzOrderByExp
+        - fieldName: id
+          orderByExpression: UuidOrderByExp
+        - fieldName: isComplete
+          orderByExpression: Boolean1OrderByExp
+        - fieldName: isReminderSent
+          orderByExpression: Boolean1OrderByExp
+        - fieldName: updatedAt
+          orderByExpression: TimestamptzOrderByExp
+        - fieldName: userId
+          orderByExpression: UuidOrderByExp
+      orderableRelationships:
+        - relationshipName: user
+  graphql:
+    expressionTypeName: CartsOrderByExp
+
+---
+kind: Model
+version: v2
+definition:
+  name: Carts
+  objectType: Carts
+  source:
+    dataConnectorName: pg
+    collection: carts
+  filterExpressionType: CartsBoolExp
+  aggregateExpression: CartsAggExp
+  orderByExpression: CartsOrderByExp
+  graphql:
+    selectMany:
+      queryRootField: carts
+      subscription:
+        rootField: carts
+    selectUniques:
+      - queryRootField: cartsById
+        uniqueIdentifier:
+          - id
+        subscription:
+          rootField: cartsById
+    filterInputTypeName: CartsFilterInput
+    aggregate:
+      queryRootField: cartsAggregate
+      subscription:
+        rootField: cartsAggregate
+
+---
+kind: ModelPermissions
+version: v1
+definition:
+  modelName: Carts
+  permissions:
+    - role: admin
+      select:
+        filter: null
+        allowSubscriptions: true
+
+---
+kind: Relationship
+version: v1
+definition:
+  name: cartItems
+  sourceType: Carts
+  target:
+    model:
+      name: CartItems
+      relationshipType: Array
+      aggregate:
+        aggregateExpression: CartItemsAggExp
+  mapping:
+    - source:
+        fieldPath:
+          - fieldName: id
+      target:
+        modelField:
+          - fieldName: cartId
+  graphql:
+    aggregateFieldName: cartItemsAggregate
+
+---
+kind: Relationship
+version: v1
+definition:
+  name: user
+  sourceType: Carts
+  target:
+    model:
+      name: Users
+      relationshipType: Object
+  mapping:
+    - source:
+        fieldPath:
+          - fieldName: userId
+      target:
+        modelField:
+          - fieldName: id
+

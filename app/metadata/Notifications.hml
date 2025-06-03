@@ -1,0 +1,188 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: Notifications
+  fields:
+    - name: createdAt
+      type: Timestamptz!
+    - name: id
+      type: Uuid!
+    - name: message
+      type: String_1!
+    - name: updatedAt
+      type: Timestamptz!
+    - name: userId
+      type: Uuid!
+  graphql:
+    typeName: Notifications
+    inputTypeName: NotificationsInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: pg
+      dataConnectorObjectType: notifications
+      fieldMapping:
+        createdAt:
+          column:
+            name: created_at
+        id:
+          column:
+            name: id
+        message:
+          column:
+            name: message
+        updatedAt:
+          column:
+            name: updated_at
+        userId:
+          column:
+            name: user_id
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: Notifications
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - createdAt
+          - id
+          - message
+          - updatedAt
+          - userId
+
+---
+kind: BooleanExpressionType
+version: v1
+definition:
+  name: NotificationsBoolExp
+  operand:
+    object:
+      type: Notifications
+      comparableFields:
+        - fieldName: createdAt
+          booleanExpressionType: TimestamptzBoolExp
+        - fieldName: id
+          booleanExpressionType: UuidBoolExp
+        - fieldName: message
+          booleanExpressionType: TextBoolExp
+        - fieldName: updatedAt
+          booleanExpressionType: TimestamptzBoolExp
+        - fieldName: userId
+          booleanExpressionType: UuidBoolExp
+      comparableRelationships:
+        - relationshipName: user
+  logicalOperators:
+    enable: true
+  isNull:
+    enable: true
+  graphql:
+    typeName: NotificationsBoolExp
+
+---
+kind: AggregateExpression
+version: v1
+definition:
+  name: NotificationsAggExp
+  operand:
+    object:
+      aggregatedType: Notifications
+      aggregatableFields:
+        - fieldName: createdAt
+          aggregateExpression: TimestamptzAggExp
+        - fieldName: id
+          aggregateExpression: UuidAggExp
+        - fieldName: message
+          aggregateExpression: TextAggExp
+        - fieldName: updatedAt
+          aggregateExpression: TimestamptzAggExp
+        - fieldName: userId
+          aggregateExpression: UuidAggExp
+  count:
+    enable: true
+  graphql:
+    selectTypeName: NotificationsAggExp
+
+---
+kind: OrderByExpression
+version: v1
+definition:
+  name: NotificationsOrderByExp
+  operand:
+    object:
+      orderedType: Notifications
+      orderableFields:
+        - fieldName: createdAt
+          orderByExpression: TimestamptzOrderByExp
+        - fieldName: id
+          orderByExpression: UuidOrderByExp
+        - fieldName: message
+          orderByExpression: String1OrderByExp
+        - fieldName: updatedAt
+          orderByExpression: TimestamptzOrderByExp
+        - fieldName: userId
+          orderByExpression: UuidOrderByExp
+      orderableRelationships:
+        - relationshipName: user
+  graphql:
+    expressionTypeName: NotificationsOrderByExp
+
+---
+kind: Model
+version: v2
+definition:
+  name: Notifications
+  objectType: Notifications
+  source:
+    dataConnectorName: pg
+    collection: notifications
+  filterExpressionType: NotificationsBoolExp
+  aggregateExpression: NotificationsAggExp
+  orderByExpression: NotificationsOrderByExp
+  graphql:
+    selectMany:
+      queryRootField: notifications
+      subscription:
+        rootField: notifications
+    selectUniques:
+      - queryRootField: notificationsById
+        uniqueIdentifier:
+          - id
+        subscription:
+          rootField: notificationsById
+    filterInputTypeName: NotificationsFilterInput
+    aggregate:
+      queryRootField: notificationsAggregate
+      subscription:
+        rootField: notificationsAggregate
+
+---
+kind: ModelPermissions
+version: v1
+definition:
+  modelName: Notifications
+  permissions:
+    - role: admin
+      select:
+        filter: null
+        allowSubscriptions: true
+
+---
+kind: Relationship
+version: v1
+definition:
+  name: user
+  sourceType: Notifications
+  target:
+    model:
+      name: Users
+      relationshipType: Object
+  mapping:
+    - source:
+        fieldPath:
+          - fieldName: userId
+      target:
+        modelField:
+          - fieldName: id
+
